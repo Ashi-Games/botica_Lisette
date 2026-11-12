@@ -11,4 +11,5 @@ public interface IngresoRepository extends JpaRepository<Ingreso, Long> {
             String proveedor, String tipoComprobante, String codigoComprobante);
 
     List<Ingreso> findAllByOrderByFechaComprobanteDesc();
+
 }
