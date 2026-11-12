@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/head :: head('Alertas')}"></head>
+
+<body>
+
+<div class="app">
+
+    <aside th:replace="~{fragments/sidebar :: sidebar('alertas')}"></aside>
+
+    <main class="main-content">
+
+        <header class="page-header">
+            <div>
+                <h1>Alertas automáticas</h1>
+                <p>El sistema revisa stock y vencimientos sin intervención manual</p>
+            </div>
+        </header>
+
+        <!-- RESUMEN -->
+
+        <section class="alert-summary">
+
+            <div class="stat-card">
+                <div class="stat-value">5</div>
+                <div class="stat-label">
+                    Productos vencen en los próximos 30 días
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-value">5</div>
+                <div class="stat-label">
+                    Productos con stock bajo
+                </div>
+            </div>
+
+        </section>
+
+        <!-- CONTENIDO -->
+
+        <section class="alerts-layout">
+
+            <!-- PROXIMOS A VENCER -->
+
+            <div class="card">
+
+                <h3 class="card-title">
+                    Próximos a vencer (30 días)
+                </h3>
+
+                <div class="table-container">
+
+                    <table>
+
+                        <thead>
+                        <tr>
+                            <th>Producto</th>
+                            <th>Fecha</th>
+                            <th>Días</th>
+                            <th>Stock</th>
+                        </tr>
+                        </thead>
+
+                        <tbody>
+
+                        <tr th:each="producto : ${proximosVencer}">
+
+                            <td>
+                                <strong th:text="${producto.nombre}"></strong>
+                            </td>
+
+                            <td th:text="${producto.fecha}"></td>
+
+                            <td>
+                                    <span class="badge badge-danger"
+                                          th:text="${producto.dias + ' días'}">
+                                    </span>
+                            </td>
+
+                            <td th:text="${producto.stock}"></td>
+
+                        </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+            <!-- REPOSICION -->
+
+            <div class="card">
+
+                <h3 class="card-title">
+                    Reposición necesaria
+                </h3>
+
+                <div th:each="producto : ${reposicion}"
+                     class="alert-item">
+
+                    <strong>
+                        <i class="bi bi-exclamation-circle"></i>
+                        <span th:text="${producto.nombre}"></span>
+                    </strong>
+
+                    <span th:text="${'Stock actual: ' + producto.stock + ' unidades.'}"></span>
+
+                    <br>
+
+                    <span th:text="${'Mínimo: ' + producto.minimo}"></span>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<body>
+<div class="linea-ingreso" th:fragment="fila(i, l)">
+
+    <div class="linea-datos">
+        <div>
+            <label>Producto</label>
+            <select class="sel-producto" th:name="|lineas[${i}].productoId|">
+                <option value="">➕ Producto nuevo</option>
+                <option th:each="p : ${productos}" th:value="${p.id}" th:text="${p.nombre}"
+                        th:selected="${l.productoId != null and l.productoId == p.id}"></option>
+            </select>
+        </div>
+        <div>
+            <label>Cantidad</label>
+            <input type="number" min="1" required th:name="|lineas[${i}].cantidad|" th:value="${l.cantidad}">
+        </div>
+        <div>
+            <label>Código de lote</label>
+            <input type="text" maxlength="40" th:name="|lineas[${i}].codigoLote|" th:value="${l.codigoLote}">
+        </div>
+        <div>
+            <label>Vence</label>
+            <input type="date" required th:name="|lineas[${i}].fechaVencimiento|" th:value="${l.fechaVencimiento}">
+        </div>
+        <button type="button" class="btn-borde quitar">Quitar</button>
+    </div>
+
+    <div class="linea-nuevo">
+        <div>
+            <label>Nombre del producto nuevo</label>
+            <input type="text" maxlength="120" th:name="|lineas[${i}].nombre|" th:value="${l.nombre}">
+        </div>
+        <div>
+            <label>Categoría</label>
+            <input type="text" list="categorias" maxlength="60" th:name="|lineas[${i}].categoria|" th:value="${l.categoria}">
+        </div>
+        <div>
+            <label>Precio de venta (S/)</label>
+            <input type="number" min="0.01" step="0.01" th:name="|lineas[${i}].precioVenta|" th:value="${l.precioVenta}">
+        </div>
+        <div>
+            <label>Stock mínimo</label>
+            <input type="number" min="0" th:name="|lineas[${i}].stockMinimo|" th:value="${l.stockMinimo}">
+        </div>
+    </div>
+
+</div>
+</body>
+</html>

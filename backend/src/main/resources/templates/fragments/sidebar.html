@@ -1,0 +1,54 @@
+<aside th:fragment="sidebar(pagina)" class="sidebar">
+
+    <div class="brand">
+        <div class="brand-icon">
+            <i class="bi bi-plus-lg"></i>
+        </div>
+        <span class="brand-name">Botica Lisette</span>
+    </div>
+
+    <nav class="sidebar-menu">
+
+        <a th:href="@{/dashboard}"
+           th:classappend="${pagina == 'dashboard'} ? 'active' : ''">
+            <i class="bi bi-grid"></i>
+            <span class="menu-text">Dashboard</span>
+        </a>
+
+        <a th:href="@{/inventario}"
+           th:classappend="${pagina == 'inventario'} ? 'active' : ''">
+            <i class="bi bi-box-seam"></i>
+            <span class="menu-text">Inventario</span>
+        </a>
+
+        <a th:href="@{/ingresos/nuevo}"
+           th:classappend="${pagina == 'ingreso-form'} ? 'active' : ''">
+            <i class="bi bi-truck"></i>
+            <span class="menu-text">Registrar ingreso</span>
+        </a>
+
+        <a th:href="@{/alertas}"
+           th:classappend="${pagina == 'alertas'} ? 'active' : ''">
+            <i class="bi bi-exclamation-triangle"></i>
+            <span class="menu-text">Alertas</span>
+        </a>
+
+        <a th:href="@{/ventas}"
+           th:classappend="${pagina == 'ventas'} ? 'active' : ''">
+            <i class="bi bi-cart"></i>
+            <span class="menu-text">Registrar venta</span>
+        </a>
+
+        <a th:href="@{/login}">
+            <i class="bi bi-box-arrow-left"></i>
+            <span class="menu-text">Cerrar sesión</span>
+        </a>
+
+    </nav>
+
+    <div class="sidebar-footer">
+        Sesión: Propietaria<br>
+        Rol: Administrador
+    </div>
+
+</aside>

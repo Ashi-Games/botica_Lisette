@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/head :: head('Registrar venta')}"></head>
+
+<body>
+
+<div class="app">
+
+    <aside th:replace="~{fragments/sidebar :: sidebar('ventas')}"></aside>
+
+    <main class="main-content">
+
+        <header class="page-header">
+            <div>
+                <h1>Registrar venta</h1>
+                <p>Campos separados y validados para evitar errores de cantidad y precio</p>
+            </div>
+        </header>
+
+        <section class="sales-layout">
+
+            <!-- AGREGAR PRODUCTOS -->
+
+            <div class="card">
+
+                <h3 class="card-title">Agregar producto</h3>
+
+                <div class="product-form">
+
+                    <div class="field">
+                        <label>Producto</label>
+
+                        <select id="producto" class="form-control">
+
+                            <option value="">Seleccionar producto</option>
+
+                            <option th:each="p : ${productos}"
+                                    th:value="${p.nombre}"
+                                    th:data-precio="${p.precio}"
+                                    th:data-stock="${p.stock}"
+                                    th:text="${p.nombre}">
+                            </option>
+
+                        </select>
+                    </div>
+
+                    <div class="field">
+                        <label>Cantidad</label>
+                        <input type="number"
+                               id="cantidad"
+                               class="form-control"
+                               min="1"
+                               value="1">
+                    </div>
+
+                    <div class="field">
+                        <label>Precio unit. (S/)</label>
+                        <input type="number"
+                               id="precio"
+                               class="form-control"
+                               min="0.01"
+                               step="0.01"
+                               readonly>
+                    </div>
+
+                    <button type="button"
+                            class="btn-primary"
+                            onclick="agregarProducto()">
+                        Agregar
+                    </button>
+
+                </div>
+
+                <p id="stockDisponible"
+                   style="font-size:11px;color:#718096;margin-bottom:20px;">
+                    Selecciona un producto para consultar su stock.
+                </p>
+
+                <h3 class="card-title">Detalle de la venta</h3>
+
+                <div class="table-container">
+
+                    <table>
+
+                        <thead>
+                        <tr>
+                            <th>Producto</th>
+                            <th>Cant.</th>
+                            <th>P. unit.</th>
+                            <th>Subtotal</th>
+                            <th></th>
+                        </tr>
+                        </thead>
+
+                        <tbody id="detalleVenta">
+
+                        <tr id="filaVacia">
+                            <td colspan="5" style="text-align:center;color:#718096;">
+                                Todavía no hay productos agregados.
+                            </td>
+                        </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+            <!-- RESUMEN -->
+
+            <div class="card">
+
+                <h3 class="card-title">Resumen</h3>
+
+                <div class="field">
+                    <label>Método de pago</label>
+
+                    <select class="form-control payment-select" id="metodoPago">
+                        <option>Efectivo</option>
+                        <option>Yape</option>
+                        <option>Plin</option>
+                        <option>Tarjeta</option>
+                    </select>
+                </div>
+
+                <h3 style="margin-top:30px;font-size:15px;">
+                    Total
+                </h3>
+
+                <div class="total-box" id="total">
+                    S/ 0.00
+                </div>
+
+                <button class="btn-primary"
+                        style="width:100%"
+                        onclick="confirmarVenta()">
+                    <i class="bi bi-check-circle"></i>
+                    Confirmar venta
+                </button>
+
+                <p style="font-size:11px;color:#718096;margin-top:12px;">
+                    Al confirmar, el sistema simulará el registro de la venta.
+                    Todavía no se guardarán datos en la base de datos.
+                </p>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+<script>
+
+    let carrito = [];
+
+    const selector = document.getElementById('producto');
+    const cantidad = document.getElementById('cantidad');
+    const precio = document.getElementById('precio');
+    const stockDisponible = document.getElementById('stockDisponible');
+
+    // CARGAR PRECIO Y STOCK
+
+    selector.addEventListener('change', function() {
+
+        const opcion = this.options[this.selectedIndex];
+
+        if (!opcion.value) {
+            precio.value = '';
+            stockDisponible.textContent =
+                'Selecciona un producto para consultar su stock.';
+            return;
+        }
+
+        precio.value = Number(opcion.dataset.precio).toFixed(2);
+
+        stockDisponible.textContent =
+            'Stock disponible: ' + opcion.dataset.stock + ' unidades.';
+
+    });
+
+    // AGREGAR PRODUCTO
+
+    function agregarProducto() {
+
+        const opcion = selector.options[selector.selectedIndex];
+
+        if (!opcion.value) {
+            alert('Selecciona un producto.');
+            return;
+        }
+
+        const nombre = opcion.value;
+        const precioUnitario = Number(opcion.dataset.precio);
+        const stock = Number(opcion.dataset.stock);
+        const unidades = Number(cantidad.value);
+
+        if (!Number.isInteger(unidades) || unidades < 1) {
+            alert('Ingresa una cantidad válida.');
+            return;
+        }
+
+        const existente = carrito.find(p => p.nombre === nombre);
+
+        const cantidadActual = existente ? existente.cantidad : 0;
+
+        if (cantidadActual + unidades > stock) {
+            alert('No hay suficiente stock disponible.');
+            return;
+        }
+
+        if (existente) {
+            existente.cantidad += unidades;
+        } else {
+            carrito.push({
+                nombre: nombre,
+                cantidad: unidades,
+                precio: precioUnitario,
+                stock: stock
+            });
+        }
+
+        selector.value = '';
+        cantidad.value = 1;
+        precio.value = '';
+        stockDisponible.textContent =
+            'Selecciona un producto para consultar su stock.';
+
+        mostrarDetalle();
+
+    }
+
+    // MOSTRAR DETALLE
+
+    function mostrarDetalle() {
+
+        const tabla = document.getElementById('detalleVenta');
+
+        tabla.innerHTML = '';
+
+        carrito.forEach((producto, indice) => {
+
+            const subtotal = producto.cantidad * producto.precio;
+
+            const fila = document.createElement('tr');
+
+            const nombre = document.createElement('td');
+            nombre.textContent = producto.nombre;
+
+            const unidades = document.createElement('td');
+            unidades.textContent = producto.cantidad;
+
+            const precioUnitario = document.createElement('td');
+            precioUnitario.textContent =
+                'S/ ' + producto.precio.toFixed(2);
+
+            const total = document.createElement('td');
+            total.textContent = 'S/ ' + subtotal.toFixed(2);
+
+            const accion = document.createElement('td');
+
+            const boton = document.createElement('button');
+            boton.type = 'button';
+            boton.textContent = '×';
+            boton.style.border = 'none';
+            boton.style.background = 'transparent';
+            boton.style.color = '#E45D5D';
+            boton.style.cursor = 'pointer';
+            boton.style.fontSize = '20px';
+
+            boton.onclick = function() {
+                eliminarProducto(indice);
+            };
+
+            accion.appendChild(boton);
+
+            fila.append(nombre, unidades, precioUnitario, total, accion);
+
+            tabla.appendChild(fila);
+
+        });
+
+        calcularTotal();
+
+    }
+
+    // ELIMINAR PRODUCTO
+
+    function eliminarProducto(indice) {
+
+        carrito.splice(indice, 1);
+
+        mostrarDetalle();
+
+    }
+
+    // CALCULAR TOTAL
+
+    function calcularTotal() {
+
+        const total = carrito.reduce((suma, producto) => {
+
+            return suma + producto.cantidad * producto.precio;
+
+        }, 0);
+
+        document.getElementById('total').textContent =
+            'S/ ' + total.toFixed(2);
+
+        if (carrito.length === 0) {
+
+            document.getElementById('detalleVenta').innerHTML = `
+                <tr>
+                    <td colspan="5" style="text-align:center;color:#718096;">
+                        Todavía no hay productos agregados.
+                    </td>
+                </tr>
+            `;
+
+        }
+
+    }
+
+    // CONFIRMAR VENTA
+
+    function confirmarVenta() {
+
+        if (carrito.length === 0) {
+            alert('Agrega al menos un producto.');
+            return;
+        }
+
+        const total = carrito.reduce((suma, producto) => {
+            return suma + producto.cantidad * producto.precio;
+        }, 0);
+
+        const metodo = document.getElementById('metodoPago').value;
+
+        alert(
+            'Venta simulada correctamente.\n\n' +
+            'Total: S/ ' + total.toFixed(2) + '\n' +
+            'Método de pago: ' + metodo
+        );
+
+        carrito = [];
+
+        mostrarDetalle();
+
+    }
+
+</script>
+
+</body>
+</html>

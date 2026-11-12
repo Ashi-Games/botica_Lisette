@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Inventario')}"></head>
+<body>
+<div class="app">
+
+    <aside th:replace="~{fragments/sidebar :: sidebar('inventario')}"></aside>
+
+    <main class="main-content">
+
+        <div class="page-header">
+            <div>
+                <h1>Inventario de productos</h1>
+                <p>Control de stock mínimo y fechas de vencimiento</p>
+            </div>
+            <a class="btn-verde" th:href="@{/ingresos/nuevo}">+ Registrar ingreso</a>
+        </div>
+
+        <div class="alerta-ok" th:if="${mensaje}" th:text="${mensaje}"></div>
+
+        <div class="panel">
+            <form class="barra-herramientas" th:action="@{/inventario}" method="get">
+                <input type="text" name="q" th:value="${q}" placeholder="Buscar producto por nombre...">
+                <select name="estado" onchange="this.form.submit()">
+                    <option value="">Todos los estados</option>
+                    <option value="NORMAL"     th:selected="${estado == 'NORMAL'}">Normal</option>
+                    <option value="BAJO"       th:selected="${estado == 'BAJO'}">Stock bajo</option>
+                    <option value="POR_VENCER" th:selected="${estado == 'POR_VENCER'}">Por vencer</option>
+                    <option value="VENCIDO"    th:selected="${estado == 'VENCIDO'}">Vencido</option>
+                </select>
+            </form>
+
+            <div class="tabla-wrap">
+                <table class="tabla">
+                    <thead>
+                    <tr>
+                        <th>Producto</th><th>Categoría</th><th>Stock</th>
+                        <th>Stock mín.</th><th>Vence</th><th>Estado</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="f : ${filas}">
+                        <td class="nombre" th:text="${f.nombre}"></td>
+                        <td th:text="${f.categoria}"></td>
+                        <td th:text="${f.stock}"></td>
+                        <td th:text="${f.stockMinimo}"></td>
+                        <td th:text="${f.vence != null} ? ${#temporals.format(f.vence, 'dd/MM/yyyy')} : '—'"></td>
+                        <td><span class="estado" th:classappend="${f.estadoClase}" th:text="${f.estadoTexto}"></span></td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(filas)}">
+                        <td colspan="6">No hay productos que coincidan.</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </main>
+</div>
+</body>
+</html>

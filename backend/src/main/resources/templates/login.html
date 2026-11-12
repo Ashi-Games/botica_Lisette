@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/head :: head('Iniciar sesión')}"></head>
+
+<body class="login-page">
+
+<div class="login-card">
+
+    <div class="login-brand">
+        <div class="brand-icon">
+            <i class="bi bi-plus-lg"></i>
+        </div>
+        Botica Lisette
+    </div>
+
+    <h2>Iniciar sesión</h2>
+
+    <p class="login-description">
+        Accede al sistema de gestión
+    </p>
+
+    <form th:action="@{/dashboard}" method="get">
+
+        <div class="login-field">
+            <label>Usuario</label>
+            <input type="text"
+                   class="form-control"
+                   placeholder="Ingresa tu usuario"
+                   required>
+        </div>
+
+        <div class="login-field">
+            <label>Contraseña</label>
+            <input type="password"
+                   class="form-control"
+                   placeholder="Ingresa tu contraseña"
+                   required>
+        </div>
+
+        <div class="login-field">
+            <label>Rol</label>
+            <select class="form-control">
+                <option>Propietaria (administrador)</option>
+                <option>Empleado</option>
+            </select>
+        </div>
+
+        <button type="submit" class="btn-primary">
+            Ingresar
+        </button>
+
+    </form>
+
+</div>
+
+</body>
+</html>

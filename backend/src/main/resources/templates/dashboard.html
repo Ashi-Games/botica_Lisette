@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Dashboard')}"></head>
+<body>
+<div class="app">
+    <aside th:replace="~{fragments/sidebar :: sidebar('dashboard')}"></aside>
+    <main class="main-content">
+        <header class="page-header">
+            <div>
+                <h1>Panel de control</h1>
+                <p>Resumen del negocio - Datos de ejemplo del prototipo</p>
+            </div>
+            <button class="btn-outline" onclick="window.print()">
+                <i class="bi bi-download"></i> Exportar reporte
+            </button>
+        </header>
+
+        <!-- INDICADORES -->
+
+        <section class="stats-grid">
+
+            <div class="stat-card">
+                <div class="stat-label">Ventas del día</div>
+                <div class="stat-value">
+                    S/ <span th:text="${ventasDia}"></span>
+                </div>
+                <div class="stat-info">↑ 12% vs. ayer</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-label">Ventas del mes</div>
+                <div class="stat-value">
+                    S/ <span th:text="${ventasMes}"></span>
+                </div>
+                <div class="stat-info">↑ 8% vs. mes anterior</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-label">Cantidad de ventas</div>
+                <div class="stat-value" th:text="${cantidadVentas}"></div>
+                <div class="stat-info" style="color:#E45D5D">
+                    ↓ 3% vs. mes anterior
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-label">Productos con alerta</div>
+                <div class="stat-value" th:text="${productosAlerta}"></div>
+                <div class="stat-info" style="color:#E99A45">
+                    Stock bajo o por vencer
+                </div>
+            </div>
+
+        </section>
+
+        <!-- GRAFICO Y ALERTAS -->
+
+        <section class="dashboard-grid">
+
+            <div class="card">
+                <h3 class="card-title">Ventas mensuales (S/)</h3>
+
+                <div class="chart-container">
+                    <canvas id="ventasChart"></canvas>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3 class="card-title">Alertas recientes</h3>
+
+                <div class="alert-item">
+                    <strong>¡Alerta! Paracetamol 500 mg</strong>
+                    Presenta stock bajo.
+                    <br>
+                    Stock actual: 5 unidades.
+                </div>
+
+                <div class="alert-item danger">
+                    <strong>¡Alerta! 5 productos vencerán</strong>
+                    Durante los próximos 30 días.
+                    <br>
+                    Revisar sección Alertas.
+                </div>
+
+                <div class="alert-item">
+                    <strong>¡5 productos requieren reposición!</strong>
+                    Se alcanzó el stock mínimo configurado.
+                </div>
+            </div>
+
+        </section>
+
+        <!-- PRODUCTOS -->
+
+        <section class="dashboard-bottom">
+
+            <div class="card">
+                <h3 class="card-title">Productos más vendidos</h3>
+
+                <div class="table-container">
+                    <table>
+                        <tbody>
+                        <tr th:each="producto, estado : ${productosVendidos}">
+                            <td th:text="${estado.count + '.'}"></td>
+                            <td th:text="${producto.nombre}"></td>
+                            <td align="right">
+                                <strong th:text="${producto.cantidad + ' und.'}"></strong>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3 class="card-title">Productos menos vendidos</h3>
+
+                <div class="table-container">
+                    <table>
+                        <tbody>
+                        <tr th:each="producto, estado : ${productosMenosVendidos}">
+                            <td th:text="${estado.count + '.'}"></td>
+                            <td th:text="${producto.nombre}"></td>
+                            <td align="right">
+                                <strong th:text="${producto.cantidad + ' und.'}"></strong>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+<script>
+    const contexto = document.getElementById('ventasChart');
+
+    new Chart(contexto, {
+        type: 'bar',
+
+        data: {
+            labels: ['May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct'],
+
+            datasets: [{
+                label: 'Ventas (S/)',
+                data: [7200, 8100, 7650, 8900, 9150, 9870],
+
+                backgroundColor: [
+                    '#087F75',
+                    '#087F75',
+                    '#087F75',
+                    '#087F75',
+                    '#087F75',
+                    '#11998E'
+                ],
+
+                borderRadius: 5,
+                barThickness: 18
+            }]
+        },
+
+        options: {
+            maintainAspectRatio: false,
+
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        color: '#EDF1EF'
+                    }
+                },
+
+                x: {
+                    grid: {
+                        display: false
+                    }
+                }
+            }
+        }
+    });
+</script>
+
+</body>
+</html>

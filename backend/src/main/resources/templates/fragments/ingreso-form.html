@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Registrar ingreso')}"></head>
+<body>
+<div class="app">
+
+    <aside th:replace="~{fragments/sidebar :: sidebar('ingreso-form')}"></aside>
+
+    <main class="main-content">
+
+        <div class="page-header">
+            <div>
+                <h1>Registrar ingreso de productos</h1>
+                <p>Anota el comprobante de compra y los productos que llegaron</p>
+            </div>
+        </div>
+
+        <div class="alerta-error" th:if="${error}" th:text="${error}"></div>
+
+        <form th:action="@{/ingresos}" method="post">
+
+            <div class="panel" style="margin-bottom:14px">
+                <h2>Datos del comprobante</h2>
+                <div class="grid-comprobante">
+                    <div>
+                        <label>Proveedor</label>
+                        <input type="text" name="proveedor" maxlength="120" required th:value="${form.proveedor}">
+                    </div>
+                    <div>
+                        <label>Tipo de comprobante</label>
+                        <select name="tipoComprobante" required>
+                            <option value="">Elige...</option>
+                            <option th:each="t : ${tipos}" th:value="${t}" th:text="${t.etiqueta}"
+                                    th:selected="${t.name() == form.tipoComprobante}"></option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>Código (ej. F001-000123)</label>
+                        <input type="text" name="codigoComprobante" maxlength="30" required th:value="${form.codigoComprobante}">
+                    </div>
+                    <div>
+                        <label>Fecha del comprobante</label>
+                        <input type="date" name="fechaComprobante" required th:value="${form.fechaComprobante}">
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel">
+                <h2>Productos que ingresan</h2>
+
+                <div id="lineas">
+                    <th:block th:each="l, st : ${form.lineas}">
+                        <div th:replace="~{fragments/linea-ingreso :: fila(${st.index}, ${l})}"></div>
+                    </th:block>
+                </div>
+
+                <button type="button" id="agregar" class="btn-borde">+ Agregar otro producto</button>
+
+                <div style="margin-top:16px">
+                    <button type="submit" class="btn-verde">Guardar ingreso</button>
+                </div>
+            </div>
+        </form>
+
+        <datalist id="categorias">
+            <option th:each="c : ${categorias}" th:value="${c}"></option>
+        </datalist>
+
+        <template id="plantilla">
+            <div th:replace="~{fragments/linea-ingreso :: fila('NNN', ${nuevaLinea})}"></div>
+        </template>
+
+    </main>
+</div>
+
+<script>
+    (function () {
+        const cont = document.getElementById('lineas');
+        const plantilla = document.getElementById('plantilla').innerHTML;
+        let indice = cont.querySelectorAll('.linea-ingreso').length;
+
+        function actualizar(linea) {
+            const sel = linea.querySelector('.sel-producto');
+            linea.querySelector('.linea-nuevo').classList.toggle('oculto', sel.value !== '');
+        }
+
+        document.getElementById('agregar').addEventListener('click', function () {
+            const div = document.createElement('div');
+            div.innerHTML = plantilla.split('NNN').join(indice++);
+            const linea = div.firstElementChild;
+            cont.appendChild(linea);
+            actualizar(linea);
+        });
+
+        cont.addEventListener('change', function (e) {
+            if (e.target.classList.contains('sel-producto')) {
+                actualizar(e.target.closest('.linea-ingreso'));
+            }
+        });
+
+        cont.addEventListener('click', function (e) {
+            if (e.target.classList.contains('quitar') &&
+                cont.querySelectorAll('.linea-ingreso').length > 1) {
+                e.target.closest('.linea-ingreso').remove();
+            }
+        });
+
+        cont.querySelectorAll('.linea-ingreso').forEach(actualizar);
+    })();
+</script>
+</body>
+</html>
