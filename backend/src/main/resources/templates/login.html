@@ -20,37 +20,26 @@
         Accede al sistema de gestión
     </p>
 
-    <form th:action="@{/dashboard}" method="get">
+ <div class="alerta-error" th:if="${param.error}">Usuario o contraseña incorrectos.</div>
+<div class="alerta-ok" th:if="${param.logout}">Sesión cerrada correctamente.</div>
 
-        <div class="login-field">
-            <label>Usuario</label>
-            <input type="text"
-                   class="form-control"
-                   placeholder="Ingresa tu usuario"
-                   required>
-        </div>
+<form th:action="@{/login}" method="post">
 
-        <div class="login-field">
-            <label>Contraseña</label>
-            <input type="password"
-                   class="form-control"
-                   placeholder="Ingresa tu contraseña"
-                   required>
-        </div>
+    <div class="login-field">
+        <label>Usuario</label>
+        <input type="text" name="username" class="form-control"
+               placeholder="Ingresa tu usuario" required autofocus>
+    </div>
 
-        <div class="login-field">
-            <label>Rol</label>
-            <select class="form-control">
-                <option>Propietaria (administrador)</option>
-                <option>Empleado</option>
-            </select>
-        </div>
+    <div class="login-field">
+        <label>Contraseña</label>
+        <input type="password" name="password" class="form-control"
+               placeholder="Ingresa tu contraseña" required>
+    </div>
 
-        <button type="submit" class="btn-primary">
-            Ingresar
-        </button>
+    <button type="submit" class="btn-primary">Ingresar</button>
 
-    </form>
+</form>
 
 </div>
 

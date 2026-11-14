@@ -711,3 +711,28 @@ tbody tr:hover {
         }
     }
 
+/* BOTÓN CERRAR SESIÓN (sidebar) */
+.sidebar-menu form { margin: 0; }
+
+.logout-btn {
+    width: 100%;
+    text-align: left;
+    padding: 11px 12px;
+    border: none;
+    border-radius: 6px;
+    background: transparent;
+    color: #D2E8E5;
+    font-size: 13px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.logout-btn:hover {
+    background: rgba(255,255,255,0.16);
+    color: white;
+}
+
+@media (max-width: 650px) {
+    .logout-btn { font-size: 0; text-align: center; padding: 13px 5px; }
+    .logout-btn i { font-size: 16px; }
+}

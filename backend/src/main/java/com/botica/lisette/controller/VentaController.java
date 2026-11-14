@@ -1,5 +1,6 @@
 package com.botica.lisette.controller;
 
+import java.security.Principal;
 import com.botica.lisette.dto.VentaForm;
 import com.botica.lisette.model.Usuario;
 import com.botica.lisette.model.Venta;
@@ -29,19 +30,16 @@ public class VentaController {
     }
 
     @PostMapping
-    public String guardar(@ModelAttribute VentaForm form, RedirectAttributes redirect) {
-        try {
-            Venta venta = ventaService.registrar(form, usuarioActual());
-            redirect.addFlashAttribute("ok", "Venta registrada. Total: S/ " + venta.getTotal());
-        } catch (IllegalArgumentException e) {
-            redirect.addFlashAttribute("error", e.getMessage());
-        }
-        return "redirect:/ventas";
+public String guardar(@ModelAttribute VentaForm form, Principal principal,
+                    RedirectAttributes redirect) {
+    try {
+        Usuario usuario = usuarioRepository.findByUsername(principal.getName())
+                .orElseThrow(() -> new IllegalStateException("Usuario no encontrado."));
+        Venta venta = ventaService.registrar(form, usuario);
+        redirect.addFlashAttribute("ok", "Venta registrada. Total: S/ " + venta.getTotal());
+    } catch (IllegalArgumentException e) {
+        redirect.addFlashAttribute("error", e.getMessage());
     }
-
-    // TEMPORAL: en el bloque de roles se cambia por el usuario que inició sesión
-    private Usuario usuarioActual() {
-        return usuarioRepository.findByUsername("admin")
-                .orElseThrow(() -> new IllegalStateException("Falta el usuario 'admin' en la base."));
-    }
+    return "redirect:/ventas";
+}
 }
