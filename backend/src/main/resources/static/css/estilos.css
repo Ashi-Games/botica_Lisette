@@ -736,3 +736,11 @@ tbody tr:hover {
     .logout-btn { font-size: 0; text-align: center; padding: 13px 5px; }
     .logout-btn i { font-size: 16px; }
 }
+
+/* PREDICCIÓN DE DEMANDA */
+.ia-boton { text-decoration: none; display: inline-flex; align-items: center; gap: 6px; font-size: 13px; }
+.stat-value.ia-texto { font-size: 16px; line-height: 1.3; }
+.tendencia-sube { color: #21845D; font-weight: 600; }
+.tendencia-baja { color: var(--rojo); font-weight: 600; }
+.tendencia-estable { color: var(--texto-secundario); font-weight: 600; }
+.ia-nota { margin-top: 14px; font-size: 11px; color: var(--texto-secundario); line-height: 1.5; }

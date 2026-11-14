@@ -16,6 +16,12 @@
             
         </a>
 
+                <a th:if="${esAdmin}" th:href="@{/predicciones}"
+           th:classappend="${pagina == 'predicciones'} ? 'active' : ''">
+            <i class="bi bi-graph-up-arrow"></i>
+            <span class="menu-text">Predicción de demanda</span>
+        </a>
+
         <a th:href="@{/inventario}"
            th:classappend="${pagina == 'inventario'} ? 'active' : ''">
             <i class="bi bi-box-seam"></i>

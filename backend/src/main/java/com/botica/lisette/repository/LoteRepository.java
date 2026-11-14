@@ -25,4 +25,8 @@ public interface LoteRepository extends JpaRepository<Lote, Long> {
 
     @Query("select l.producto.id, sum(l.cantidad), min(l.fechaVencimiento) from Lote l where l.cantidad > 0 group by l.producto.id")
     List<Object[]> resumenPorProducto();
+        /** [productoId, unidades] de lotes con stock que NO están vencidos (stock realmente vendible). */
+    @Query("select l.producto.id, sum(l.cantidad) from Lote l " +
+           "where l.cantidad > 0 and l.fechaVencimiento >= :hoy group by l.producto.id")
+    List<Object[]> stockVendible(@Param("hoy") LocalDate hoy);
 }

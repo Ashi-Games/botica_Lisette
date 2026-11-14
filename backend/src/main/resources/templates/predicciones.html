@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Predicción de demanda')}"></head>
+<body>
+<div class="app">
+    <aside th:replace="~{fragments/sidebar :: sidebar('predicciones')}"></aside>
+
+    <main class="main-content">
+
+        <header class="page-header">
+            <div>
+                <h1>Predicción de demanda</h1>
+                <p>Qué productos se venderán más y cuántas unidades se esperan</p>
+            </div>
+            <a class="btn-outline ia-boton" th:href="@{/predicciones(actualizar=1)}">
+                <i class="bi bi-arrow-repeat"></i> Actualizar
+            </a>
+        </header>
+
+        <!-- Si el módulo de Python no está encendido -->
+        <div class="alert-item danger" th:if="${iaError}">
+            <strong>No se pudo calcular la predicción.</strong>
+            <span th:text="${iaError}"></span>
+        </div>
+
+        <th:block th:if="${ia}">
+
+            <section class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">Unidades esperadas (próx. 7 días)</div>
+                    <div class="stat-value" th:text="${ia.totalSemana()}">0</div>
+                    <div class="stat-info">Todos los productos</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Unidades esperadas (próx. 30 días)</div>
+                    <div class="stat-value" th:text="${ia.totalMes()}">0</div>
+                    <div class="stat-info">Todos los productos</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Producto más demandado</div>
+                    <div class="stat-value ia-texto"
+                         th:text="${ia.productos().isEmpty() or ia.productos().get(0).unidadesSemana() == 0} ? '—' : ${ia.productos().get(0).producto()}">—</div>
+                    <div class="stat-info">Para la próxima semana</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Calculado</div>
+                    <div class="stat-value ia-texto" th:text="${#strings.replace(ia.generadoEn(), 'T', ' ')}">—</div>
+                    <div class="stat-info">Se guarda 10 min; usa «Actualizar»</div>
+                </div>
+            </section>
+
+            <section class="card">
+                <h3 class="card-title">Demanda esperada por producto</h3>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Producto</th>
+                            <th>Próx. 7 días</th>
+                            <th>Próx. 30 días</th>
+                            <th>Tendencia</th>
+                            <th>Stock actual</th>
+                            <th>Alcanza para</th>
+                            <th>Comprar (30 d)</th>
+                            <th>Confianza</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="f, st : ${ia.productos()}">
+                            <td th:text="${st.count}"></td>
+                            <td><strong th:text="${f.producto()}"></strong></td>
+                            <td th:text="${f.unidadesSemana() + ' und.'}"></td>
+                            <td th:text="${f.unidadesMes() + ' und.'}"></td>
+                            <td>
+                                <span th:if="${f.tendencia() == 'SUBE'}" class="tendencia-sube"><i class="bi bi-arrow-up-right"></i> Sube</span>
+                                <span th:if="${f.tendencia() == 'BAJA'}" class="tendencia-baja"><i class="bi bi-arrow-down-right"></i> Baja</span>
+                                <span th:if="${f.tendencia() == 'ESTABLE'}" class="tendencia-estable"><i class="bi bi-dash"></i> Estable</span>
+                            </td>
+                            <td th:text="${f.stock() + ' und.'}"></td>
+                            <td th:text="${f.diasDeStock() == null} ? '—' : ${f.diasDeStock() + ' días'}"></td>
+                            <td>
+                                <strong th:if="${f.comprarSugerido() > 0}" th:text="${f.comprarSugerido() + ' und.'}"></strong>
+                                <span th:if="${f.comprarSugerido() == 0}">No hace falta</span>
+                            </td>
+                            <td>
+                                <span class="badge"
+                                      th:classappend="${f.confianza() == 'ALTA'} ? 'badge-success' : (${f.confianza() == 'MEDIA'} ? 'badge-warning' : 'badge-danger')"
+                                      th:text="${f.confianza()}"></span>
+                            </td>
+                        </tr>
+                        <tr th:if="${ia.productos().isEmpty()}">
+                            <td colspan="9" style="color:#718096;">No hay productos activos.</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <p class="ia-nota">
+                    Cómo se calcula: se analizan las ventas de cada producto día por día y se proyectan las
+                    próximas semanas. Si el producto tiene poco historial (menos de 8 semanas) o el modelo no
+                    mejora al promedio de las últimas 4 semanas, se usa ese promedio y la confianza baja.
+                    «Comprar» = demanda de 30 días + stock mínimo − stock vendible (sin lotes vencidos).
+                    Es una estimación, no una garantía.
+                </p>
+            </section>
+
+        </th:block>
+    </main>
+</div>
+</body>
+</html>
