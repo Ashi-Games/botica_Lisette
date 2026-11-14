@@ -17,6 +17,9 @@
                 <p>Campos separados y validados para evitar errores de cantidad y precio</p>
             </div>
         </header>
+        
+<div class="alerta-ok" th:if="${ok}" th:text="${ok}"></div>
+<div class="alerta-error" th:if="${error}" th:text="${error}"></div>
 
         <section class="sales-layout">
 
@@ -36,10 +39,11 @@
                             <option value="">Seleccionar producto</option>
 
                             <option th:each="p : ${productos}"
-                                    th:value="${p.nombre}"
-                                    th:data-precio="${p.precio}"
-                                    th:data-stock="${p.stock}"
-                                    th:text="${p.nombre}">
+                                th:value="${p.id}"
+                                th:data-nombre="${p.nombre}"
+                                th:data-precio="${p.precio}"
+                                th:data-stock="${p.stock}"
+                                th:text="${p.nombre}">
                             </option>
 
                         </select>
@@ -48,10 +52,10 @@
                     <div class="field">
                         <label>Cantidad</label>
                         <input type="number"
-                               id="cantidad"
-                               class="form-control"
-                               min="1"
-                               value="1">
+                            id="cantidad"
+                            class="form-control"
+                            min="1"
+                            value="1">
                     </div>
 
                     <div class="field">
@@ -154,6 +158,8 @@
 
 </div>
 
+<form id="formVenta" th:action="@{/ventas}" method="post" style="display:none"></form>
+
 <script>
 
     let carrito = [];
@@ -193,8 +199,9 @@
             alert('Selecciona un producto.');
             return;
         }
-
-        const nombre = opcion.value;
+        
+        const id = opcion.value;
+        const nombre = opcion.dataset.nombre;
         const precioUnitario = Number(opcion.dataset.precio);
         const stock = Number(opcion.dataset.stock);
         const unidades = Number(cantidad.value);
@@ -204,7 +211,7 @@
             return;
         }
 
-        const existente = carrito.find(p => p.nombre === nombre);
+        const existente = carrito.find(p => p.id === id);
 
         const cantidadActual = existente ? existente.cantidad : 0;
 
@@ -217,6 +224,7 @@
             existente.cantidad += unidades;
         } else {
             carrito.push({
+                id: id,
                 nombre: nombre,
                 cantidad: unidades,
                 precio: precioUnitario,
@@ -329,28 +337,33 @@
 
     function confirmarVenta() {
 
-        if (carrito.length === 0) {
-            alert('Agrega al menos un producto.');
-            return;
-        }
-
-        const total = carrito.reduce((suma, producto) => {
-            return suma + producto.cantidad * producto.precio;
-        }, 0);
-
-        const metodo = document.getElementById('metodoPago').value;
-
-        alert(
-            'Venta simulada correctamente.\n\n' +
-            'Total: S/ ' + total.toFixed(2) + '\n' +
-            'Método de pago: ' + metodo
-        );
-
-        carrito = [];
-
-        mostrarDetalle();
-
+    if (carrito.length === 0) {
+        alert('Agrega al menos un producto.');
+        return;
     }
+
+    const form = document.getElementById('formVenta');
+
+    // limpia lo anterior pero conserva el token CSRF
+    form.querySelectorAll('input:not([name="_csrf"])').forEach(i => i.remove());
+
+    function campo(nombre, valor) {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = nombre;
+        input.value = valor;
+        form.appendChild(input);
+    }
+
+    campo('metodoPago', document.getElementById('metodoPago').value);
+
+    carrito.forEach((p, i) => {
+        campo('lineas[' + i + '].productoId', p.id);
+        campo('lineas[' + i + '].cantidad', p.cantidad);
+    });
+
+    form.submit();
+}
 
 </script>
 

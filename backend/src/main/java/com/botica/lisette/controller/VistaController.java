@@ -71,19 +71,4 @@ public class VistaController {
 
         return "alertas";
     }
-
-    // REGISTRAR VENTAS
-    @GetMapping("/ventas")
-    public String ventas(Model model) {
-
-        model.addAttribute("productos", List.of(
-                Map.of("nombre", "Paracetamol 500 mg", "precio", 0.50, "stock", 5),
-                Map.of("nombre", "Ibuprofeno 400 mg", "precio", 0.80, "stock", 64),
-                Map.of("nombre", "Suero oral sobre", "precio", 2.50, "stock", 55),
-                Map.of("nombre", "Loratadina 10 mg", "precio", 1.00, "stock", 42),
-                Map.of("nombre", "Amoxicilina 500 mg", "precio", 1.50, "stock", 18)
-        ));
-
-        return "ventas";
-    }
 }

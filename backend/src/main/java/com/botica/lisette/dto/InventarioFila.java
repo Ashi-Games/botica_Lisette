@@ -12,7 +12,7 @@ public class InventarioFila {
     private final String estado; // NORMAL, BAJO, POR_VENCER, VENCIDO
 
     public InventarioFila(Long id, String nombre, String categoria, long stock,
-                          int stockMinimo, LocalDate vence, String estado) {
+                        int stockMinimo, LocalDate vence, String estado) {
         this.id = id; this.nombre = nombre; this.categoria = categoria;
         this.stock = stock; this.stockMinimo = stockMinimo; this.vence = vence; this.estado = estado;
     }
