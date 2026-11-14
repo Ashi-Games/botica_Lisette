@@ -47,28 +47,4 @@ public class VistaController {
 
         return "dashboard";
     }
-
-
-    // ALERTAS
-    @GetMapping("/alertas")
-    public String alertas(Model model) {
-
-        model.addAttribute("proximosVencer", List.of(
-                Map.of("nombre", "Jarabe para la tos 120 ml", "fecha", "25/10/2026", "dias", 9, "stock", 3),
-                Map.of("nombre", "Loratadina 10 mg", "fecha", "30/10/2026", "dias", 14, "stock", 42),
-                Map.of("nombre", "Amoxicilina 500 mg", "fecha", "02/11/2026", "dias", 17, "stock", 18),
-                Map.of("nombre", "Vitamina C 1 g", "fecha", "09/11/2026", "dias", 24, "stock", 33),
-                Map.of("nombre", "Suero oral sobre", "fecha", "12/11/2026", "dias", 27, "stock", 55)
-        ));
-
-        model.addAttribute("reposicion", List.of(
-                Map.of("nombre", "Paracetamol 500 mg", "stock", 5, "minimo", 20),
-                Map.of("nombre", "Amoxicilina 500 mg", "stock", 18, "minimo", 25),
-                Map.of("nombre", "Omeprazol 20 mg", "stock", 9, "minimo", 15),
-                Map.of("nombre", "Diclofenaco gel 30 g", "stock", 7, "minimo", 10),
-                Map.of("nombre", "Jarabe para la tos 120 ml", "stock", 3, "minimo", 8)
-        ));
-
-        return "alertas";
-    }
 }

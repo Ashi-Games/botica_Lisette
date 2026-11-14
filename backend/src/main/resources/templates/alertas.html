@@ -23,14 +23,14 @@
         <section class="alert-summary">
 
             <div class="stat-card">
-                <div class="stat-value">5</div>
+                <div class="stat-value" th:text="${porVencer.size()}">0</div>
                 <div class="stat-label">
                     Productos vencen en los próximos 30 días
                 </div>
             </div>
 
             <div class="stat-card">
-                <div class="stat-value">5</div>
+                <div class="stat-value" th:text="${stockBajo.size()}">0</div>
                 <div class="stat-label">
                     Productos con stock bajo
                 </div>
@@ -65,22 +65,29 @@
 
                         <tbody>
 
-                        <tr th:each="producto : ${proximosVencer}">
+                        <tr th:each="a : ${porVencer}">
 
                             <td>
-                                <strong th:text="${producto.nombre}"></strong>
+                                <strong th:text="${a.producto()}"></strong>
                             </td>
 
-                            <td th:text="${producto.fecha}"></td>
+                            <td th:text="${#temporals.format(a.fechaVencimiento(), 'dd/MM/yyyy')}"></td>
 
                             <td>
-                                    <span class="badge badge-danger"
-                                          th:text="${producto.dias + ' días'}">
-                                    </span>
+                                <span class="badge"
+                                      th:classappend="${a.dias() <= 15} ? 'badge-danger' : 'badge-warning'"
+                                      th:text="${a.dias() < 0} ? 'Vencido' : ${a.dias() + ' días'}">
+                                </span>
                             </td>
 
-                            <td th:text="${producto.stock}"></td>
+                            <td th:text="${a.stock()}"></td>
 
+                        </tr>
+
+                        <tr th:if="${porVencer.isEmpty()}">
+                            <td colspan="4" style="text-align:center;color:#718096;">
+                                No hay productos por vencer.
+                            </td>
                         </tr>
 
                         </tbody>
@@ -99,21 +106,25 @@
                     Reposición necesaria
                 </h3>
 
-                <div th:each="producto : ${reposicion}"
+                <div th:each="s : ${stockBajo}"
                      class="alert-item">
 
                     <strong>
                         <i class="bi bi-exclamation-circle"></i>
-                        <span th:text="${producto.nombre}"></span>
+                        <span th:text="${s.producto()}"></span>
                     </strong>
 
-                    <span th:text="${'Stock actual: ' + producto.stock + ' unidades.'}"></span>
+                    <span th:text="${'Stock actual: ' + s.stockActual() + ' unidades.'}"></span>
 
                     <br>
 
-                    <span th:text="${'Mínimo: ' + producto.minimo}"></span>
+                    <span th:text="${'Mínimo: ' + s.stockMinimo()}"></span>
 
                 </div>
+
+                <p th:if="${stockBajo.isEmpty()}" style="color:#718096;">
+                    Todo el stock está por encima del mínimo.
+                </p>
 
             </div>
 
