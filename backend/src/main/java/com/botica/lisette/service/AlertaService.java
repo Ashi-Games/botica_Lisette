@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.Comparator;
 import java.util.List;
@@ -17,28 +18,35 @@ import java.util.List;
 @Service
 public class AlertaService {
 
-    public static final int DIAS_AVISO = 30;
+    private static final ZoneId LIMA = ZoneId.of("America/Lima");
 
     private final LoteRepository loteRepository;
     private final ProductoRepository productoRepository;
+    private final ConfiguracionService configuracionService;
 
-    public AlertaService(LoteRepository loteRepository, ProductoRepository productoRepository) {
+    public AlertaService(LoteRepository loteRepository, ProductoRepository productoRepository,
+                         ConfiguracionService configuracionService) {
         this.loteRepository = loteRepository;
         this.productoRepository = productoRepository;
+        this.configuracionService = configuracionService;
     }
 
-    /** Lotes con stock que vencen en los próximos 30 días (o ya vencieron). */
+    /** Un aviso por lote (cada boleta o factura tiene su propia fecha de vencimiento). */
     @Transactional(readOnly = true)
     public List<AlertaVencimiento> porVencer() {
-        LocalDate hoy = LocalDate.now();
-        LocalDate limite = hoy.plusDays(DIAS_AVISO);
+        LocalDate hoy = LocalDate.now(LIMA);
+        LocalDate limite = hoy.plusDays(configuracionService.diasAvisoVencimiento());
 
         List<Lote> lotes = loteRepository
                 .findByCantidadGreaterThanAndFechaVencimientoLessThanEqualOrderByFechaVencimientoAsc(0, limite);
 
         return lotes.stream()
                 .map(l -> new AlertaVencimiento(
+                        l.getProducto().getId(),
                         l.getProducto().getNombre(),
+                        l.getIngreso().getComprobanteTexto(),
+                        l.getIngreso().getProveedor(),
+                        l.getCodigoLote(),
                         l.getFechaVencimiento(),
                         ChronoUnit.DAYS.between(hoy, l.getFechaVencimiento()),
                         l.getCantidad()))

@@ -9,12 +9,13 @@ public class InventarioFila {
     private final long stock;
     private final int stockMinimo;
     private final LocalDate vence;
+    private final long lotes;
     private final String estado; // NORMAL, BAJO, POR_VENCER, VENCIDO
 
     public InventarioFila(Long id, String nombre, String categoria, long stock,
-                        int stockMinimo, LocalDate vence, String estado) {
-        this.id = id; this.nombre = nombre; this.categoria = categoria;
-        this.stock = stock; this.stockMinimo = stockMinimo; this.vence = vence; this.estado = estado;
+                          int stockMinimo, LocalDate vence, long lotes, String estado) {
+        this.id = id; this.nombre = nombre; this.categoria = categoria; this.stock = stock;
+        this.stockMinimo = stockMinimo; this.vence = vence; this.lotes = lotes; this.estado = estado;
     }
 
     public Long getId() { return id; }
@@ -23,6 +24,7 @@ public class InventarioFila {
     public long getStock() { return stock; }
     public int getStockMinimo() { return stockMinimo; }
     public LocalDate getVence() { return vence; }
+    public long getLotes() { return lotes; }
     public String getEstado() { return estado; }
 
     public String getEstadoTexto() {

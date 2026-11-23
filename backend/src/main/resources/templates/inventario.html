@@ -17,6 +17,8 @@
         </div>
 
         <div class="alerta-ok" th:if="${mensaje}" th:text="${mensaje}"></div>
+        <div class="alerta-ok" th:if="${ok}" th:text="${ok}"></div>
+        <div class="alerta-error" th:if="${error}" th:text="${error}"></div>
 
         <div class="panel">
             <form class="barra-herramientas" th:action="@{/inventario}" method="get">
@@ -36,6 +38,7 @@
                     <tr>
                         <th>Producto</th><th>Categoría</th><th>Stock</th>
                         <th>Stock mín.</th><th>Vence</th><th>Estado</th>
+                        <th th:if="${esAdmin}"></th>
                     </tr>
                     </thead>
                     <tbody>
@@ -44,11 +47,19 @@
                         <td th:text="${f.categoria}"></td>
                         <td th:text="${f.stock}"></td>
                         <td th:text="${f.stockMinimo}"></td>
-                        <td th:text="${f.vence != null} ? ${#temporals.format(f.vence, 'dd/MM/yyyy')} : '—'"></td>
+                        <td>
+                            <span th:text="${f.vence != null} ? ${#temporals.format(f.vence, 'dd/MM/yyyy')} : '—'"></span>
+                            <small class="texto-suave" th:if="${f.lotes > 1}" th:text="${'(' + f.lotes + ' lotes)'}"></small>
+                        </td>
                         <td><span class="estado" th:classappend="${f.estadoClase}" th:text="${f.estadoTexto}"></span></td>
+                        <td th:if="${esAdmin}">
+                            <a class="btn-borde btn-chico" th:href="@{/inventario/{id}/editar(id=${f.id})}">
+                                <i class="bi bi-pencil"></i> Editar
+                            </a>
+                        </td>
                     </tr>
                     <tr th:if="${#lists.isEmpty(filas)}">
-                        <td colspan="6">No hay productos que coincidan.</td>
+                        <td th:attr="colspan=${esAdmin} ? 7 : 6">No hay productos que coincidan.</td>
                     </tr>
                     </tbody>
                 </table>

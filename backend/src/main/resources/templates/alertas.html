@@ -1,10 +1,7 @@
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
-
 <head th:replace="~{fragments/head :: head('Alertas')}"></head>
-
 <body>
-
 <div class="app">
 
     <aside th:replace="~{fragments/sidebar :: sidebar('alertas')}"></aside>
@@ -18,121 +15,104 @@
             </div>
         </header>
 
+        <div class="alerta-ok" th:if="${mensaje}" th:text="${mensaje}"></div>
+        <div class="alerta-error" th:if="${error}" th:text="${error}"></div>
+
+        <!-- CUÁNDO AVISAR -->
+        <form class="panel config-aviso" th:action="@{/alertas/configuracion}" method="post">
+            <div>
+                <h2>¿Cuándo avisar los vencimientos?</h2>
+                <p class="texto-ayuda">Elige con cuántos días de anticipación quieres ver un lote en las alertas.</p>
+            </div>
+            <div class="config-campos">
+                <input type="number" name="dias" min="1" max="180" required
+                       list="dias-sugeridos" th:value="${diasAviso}">
+                <span>días antes</span>
+                <button type="submit" class="btn-verde">Guardar</button>
+            </div>
+            <datalist id="dias-sugeridos">
+                <option value="7"></option><option value="15"></option><option value="20"></option>
+                <option value="30"></option><option value="45"></option><option value="60"></option>
+                <option value="90"></option>
+            </datalist>
+        </form>
+
         <!-- RESUMEN -->
-
         <section class="alert-summary">
-
             <div class="stat-card">
                 <div class="stat-value" th:text="${porVencer.size()}">0</div>
-                <div class="stat-label">
-                    Productos vencen en los próximos 30 días
-                </div>
+                <div class="stat-label" th:text="'Lotes que vencen en los próximos ' + ${diasAviso} + ' días'"></div>
             </div>
-
             <div class="stat-card">
                 <div class="stat-value" th:text="${stockBajo.size()}">0</div>
-                <div class="stat-label">
-                    Productos con stock bajo
-                </div>
+                <div class="stat-label">Productos con stock bajo</div>
             </div>
-
         </section>
-
-        <!-- CONTENIDO -->
 
         <section class="alerts-layout">
 
-            <!-- PROXIMOS A VENCER -->
-
+            <!-- PRÓXIMOS A VENCER (uno por lote / comprobante) -->
             <div class="card">
-
-                <h3 class="card-title">
-                    Próximos a vencer (30 días)
-                </h3>
+                <h3 class="card-title" th:text="'Próximos a vencer (' + ${diasAviso} + ' días)'"></h3>
 
                 <div class="table-container">
-
                     <table>
-
                         <thead>
                         <tr>
                             <th>Producto</th>
+                            <th>Comprobante</th>
+                            <th>Lote</th>
                             <th>Fecha</th>
                             <th>Días</th>
                             <th>Stock</th>
                         </tr>
                         </thead>
-
                         <tbody>
-
                         <tr th:each="a : ${porVencer}">
-
+                            <td><strong th:text="${a.producto()}"></strong></td>
                             <td>
-                                <strong th:text="${a.producto()}"></strong>
+                                <span th:text="${a.comprobante()}"></span><br>
+                                <small class="texto-suave" th:text="${a.proveedor()}"></small>
                             </td>
-
+                            <td th:text="${#strings.isEmpty(a.codigoLote())} ? '—' : ${a.codigoLote()}"></td>
                             <td th:text="${#temporals.format(a.fechaVencimiento(), 'dd/MM/yyyy')}"></td>
-
                             <td>
                                 <span class="badge"
-                                      th:classappend="${a.dias() <= 15} ? 'badge-danger' : 'badge-warning'"
-                                      th:text="${a.dias() < 0} ? 'Vencido' : ${a.dias() + ' días'}">
-                                </span>
+                                      th:classappend="${a.dias() <= diasAviso / 2} ? 'badge-danger' : 'badge-warning'"
+                                      th:text="${a.dias() < 0} ? 'Vencido' : ${a.dias() + ' días'}"></span>
                             </td>
-
                             <td th:text="${a.stock()}"></td>
-
                         </tr>
-
                         <tr th:if="${porVencer.isEmpty()}">
-                            <td colspan="4" style="text-align:center;color:#718096;">
-                                No hay productos por vencer.
-                            </td>
+                            <td colspan="6" style="text-align:center;color:#718096;">No hay lotes por vencer.</td>
                         </tr>
-
                         </tbody>
-
                     </table>
-
                 </div>
-
             </div>
 
-            <!-- REPOSICION -->
-
+            <!-- REPOSICIÓN -->
             <div class="card">
+                <h3 class="card-title">Reposición necesaria</h3>
 
-                <h3 class="card-title">
-                    Reposición necesaria
-                </h3>
-
-                <div th:each="s : ${stockBajo}"
-                     class="alert-item">
-
+                <div th:each="s : ${stockBajo}" class="alert-item">
                     <strong>
                         <i class="bi bi-exclamation-circle"></i>
                         <span th:text="${s.producto()}"></span>
                     </strong>
-
                     <span th:text="${'Stock actual: ' + s.stockActual() + ' unidades.'}"></span>
-
                     <br>
-
                     <span th:text="${'Mínimo: ' + s.stockMinimo()}"></span>
-
                 </div>
 
                 <p th:if="${stockBajo.isEmpty()}" style="color:#718096;">
                     Todo el stock está por encima del mínimo.
                 </p>
-
             </div>
 
         </section>
 
     </main>
-
 </div>
-
 </body>
 </html>

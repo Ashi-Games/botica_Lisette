@@ -45,4 +45,10 @@ public class Ingreso {
     public void setFechaRegistro(LocalDateTime fechaRegistro) { this.fechaRegistro = fechaRegistro; }
     public Usuario getUsuario() { return usuario; }
     public void setUsuario(Usuario usuario) { this.usuario = usuario; }
+        /** Ej.: "Boleta B001-000045". Solo para mostrar. */
+    public String getComprobanteTexto() {
+        String tipo = "FACTURA".equals(tipoComprobante) ? "Factura" : "Boleta";
+        return tipo + " " + codigoComprobante;
+    }
+
 }

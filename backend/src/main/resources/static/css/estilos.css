@@ -744,3 +744,33 @@ tbody tr:hover {
 .tendencia-baja { color: var(--rojo); font-weight: 600; }
 .tendencia-estable { color: var(--texto-secundario); font-weight: 600; }
 .ia-nota { margin-top: 14px; font-size: 11px; color: var(--texto-secundario); line-height: 1.5; }
+
+/* EDITAR PRODUCTO Y CONFIGURACIÓN DE ALERTAS */
+.grid-producto {
+    display: grid;
+    grid-template-columns: 2fr 1.2fr 1fr 1fr;
+    gap: 10px;
+}
+
+.texto-ayuda { font-size: 13px; color: var(--texto-secundario); margin: 0 0 12px; }
+.texto-suave { font-size: 12px; color: var(--texto-secundario); }
+
+.btn-chico { padding: 6px 10px; font-size: 12px; text-decoration: none; white-space: nowrap; }
+
+.tabla tfoot th { padding: 10px; border-top: 1px solid var(--borde); }
+
+.config-aviso {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 18px;
+}
+.config-aviso h2 { margin-bottom: 4px; }
+.config-campos { display: flex; align-items: center; gap: 10px; }
+.panel .config-campos input { width: 100px; }
+
+@media (max-width: 820px) {
+    .grid-producto { grid-template-columns: 1fr; }
+}

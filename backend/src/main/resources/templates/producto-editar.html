@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Editar producto')}"></head>
+<body>
+<div class="app">
+
+    <aside th:replace="~{fragments/sidebar :: sidebar('inventario')}"></aside>
+
+    <main class="main-content">
+
+        <div class="page-header">
+            <div>
+                <h1>Editar producto</h1>
+                <p>Corrige los datos del producto y el stock de cada lote</p>
+            </div>
+            <a class="btn-borde" th:href="@{/inventario}">Volver al inventario</a>
+        </div>
+
+        <div class="alerta-error" th:if="${error}" th:text="${error}"></div>
+
+        <form th:action="@{/inventario/{id}/editar(id=${productoId})}" th:object="${form}" method="post">
+
+            <div class="panel" style="margin-bottom:14px">
+                <h2>Datos del producto</h2>
+                <div class="grid-producto">
+                    <div>
+                        <label>Nombre</label>
+                        <input type="text" th:field="*{nombre}" maxlength="120" required>
+                    </div>
+                    <div>
+                        <label>Categoría</label>
+                        <input type="text" th:field="*{categoria}" list="categorias" maxlength="60" required>
+                    </div>
+                    <div>
+                        <label>Precio de venta (S/)</label>
+                        <input type="number" th:field="*{precioVenta}" min="0.01" step="0.01" required>
+                    </div>
+                    <div>
+                        <label>Stock mínimo</label>
+                        <input type="number" th:field="*{stockMinimo}" min="0" step="1" required>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel">
+                <h2>Stock y vencimiento por lote</h2>
+                <p class="texto-ayuda">
+                    Cada boleta o factura registrada forma un lote con su propia fecha de vencimiento.
+                    El stock del producto es la suma de sus lotes.
+                </p>
+
+                <div class="tabla-wrap" th:if="${!#lists.isEmpty(form.lotes)}">
+                    <table class="tabla">
+                        <thead>
+                        <tr><th>Comprobante</th><th>Lote</th><th>Cantidad</th><th>Vence</th></tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="l, st : *{lotes}">
+                            <td>
+                                <input type="hidden" th:field="*{lotes[__${st.index}__].id}">
+                                <input type="hidden" th:field="*{lotes[__${st.index}__].comprobante}">
+                                <input type="hidden" th:field="*{lotes[__${st.index}__].codigoLote}">
+                                <span th:text="${l.comprobante}"></span>
+                            </td>
+                            <td th:text="${#strings.isEmpty(l.codigoLote)} ? '—' : ${l.codigoLote}"></td>
+                            <td>
+                                <input type="number" class="cantidad-lote" min="0" step="1" required
+                                       th:field="*{lotes[__${st.index}__].cantidad}">
+                            </td>
+                            <td>
+                                <input type="date" required th:field="*{lotes[__${st.index}__].fechaVencimiento}">
+                            </td>
+                        </tr>
+                        </tbody>
+                        <tfoot>
+                        <tr><th colspan="2">Stock total</th><th id="stock-total">0</th><th></th></tr>
+                        </tfoot>
+                    </table>
+                </div>
+
+                <p class="texto-ayuda" th:if="${#lists.isEmpty(form.lotes)}">
+                    Este producto no tiene stock. Para agregar unidades, registra un ingreso con su boleta o factura.
+                </p>
+
+                <div style="margin-top:16px">
+                    <button type="submit" class="btn-verde">Guardar cambios</button>
+                </div>
+            </div>
+        </form>
+
+        <datalist id="categorias">
+            <option th:each="c : ${categorias}" th:value="${c}"></option>
+        </datalist>
+
+    </main>
+</div>
+
+<script>
+    (function () {
+        const total = document.getElementById('stock-total');
+        if (!total) return;
+        const campos = document.querySelectorAll('.cantidad-lote');
+        function sumar() {
+            let s = 0;
+            campos.forEach(c => s += parseInt(c.value || '0', 10));
+            total.textContent = s;
+        }
+        campos.forEach(c => c.addEventListener('input', sumar));
+        sumar();
+    })();
+</script>
+</body>
+</html>

@@ -19,14 +19,16 @@ import java.util.Map;
 public class InventarioService {
 
     private static final ZoneId LIMA = ZoneId.of("America/Lima");
-    public static final int DIAS_POR_VENCER = 30;
 
     private final ProductoRepository productoRepository;
     private final LoteRepository loteRepository;
+    private final ConfiguracionService configuracionService;
 
-    public InventarioService(ProductoRepository productoRepository, LoteRepository loteRepository) {
+    public InventarioService(ProductoRepository productoRepository, LoteRepository loteRepository,
+                             ConfiguracionService configuracionService) {
         this.productoRepository = productoRepository;
         this.loteRepository = loteRepository;
+        this.configuracionService = configuracionService;
     }
 
     /** estado: vacío = todos, o NORMAL / BAJO / POR_VENCER / VENCIDO. */
@@ -41,24 +43,26 @@ public class InventarioService {
         }
 
         LocalDate hoy = LocalDate.now(LIMA);
+        int diasAviso = configuracionService.diasAvisoVencimiento();
         List<InventarioFila> filas = new ArrayList<>();
         for (Producto p : productos) {
             Object[] r = resumen.get(p.getId());
             long stock = (r == null) ? 0 : ((Number) r[1]).longValue();
             LocalDate vence = (r == null) ? null : (LocalDate) r[2];
-            String est = calcularEstado(stock, p.getStockMinimo(), vence, hoy);
+            long lotes = (r == null) ? 0 : ((Number) r[3]).longValue();
+            String est = calcularEstado(stock, p.getStockMinimo(), vence, hoy, diasAviso);
 
             if (estado == null || estado.isBlank() || estado.equals(est)) {
                 filas.add(new InventarioFila(p.getId(), p.getNombre(), p.getCategoria(),
-                        stock, p.getStockMinimo(), vence, est));
+                        stock, p.getStockMinimo(), vence, lotes, est));
             }
         }
         return filas;
     }
 
-    private String calcularEstado(long stock, int stockMinimo, LocalDate vence, LocalDate hoy) {
+    private String calcularEstado(long stock, int stockMinimo, LocalDate vence, LocalDate hoy, int diasAviso) {
         if (vence != null && vence.isBefore(hoy)) return "VENCIDO";
-        if (vence != null && !vence.isAfter(hoy.plusDays(DIAS_POR_VENCER))) return "POR_VENCER";
+        if (vence != null && !vence.isAfter(hoy.plusDays(diasAviso))) return "POR_VENCER";
         if (stock <= stockMinimo) return "BAJO";
         return "NORMAL";
     }

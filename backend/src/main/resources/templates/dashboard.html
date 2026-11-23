@@ -71,7 +71,7 @@
 
                 <div class="alert-item danger" th:if="${!r.porVencer().isEmpty()}">
                     <strong th:text="'¡Alerta! ' + ${r.porVencer().size()} + ' lotes vencen pronto'"></strong>
-                    Durante los próximos 30 días.
+                    <span th:text="'Durante los próximos ' + ${diasAviso} + ' días.'"></span>
                     <br>
                     Revisar sección Alertas.
                 </div>
