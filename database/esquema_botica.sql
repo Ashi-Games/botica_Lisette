@@ -212,3 +212,17 @@ UNLOCK TABLES;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
 -- Dump completed on 2026-11-14  0:41:29
+
+
+--
+-- Configuración del sistema (días de aviso de vencimiento)
+--
+
+CREATE TABLE IF NOT EXISTS `configuracion` (
+  `id` bigint(20) NOT NULL,
+  `dias_aviso_vencimiento` int(11) NOT NULL DEFAULT 30,
+  PRIMARY KEY (`id`),
+  CONSTRAINT `ck_conf_dias` CHECK (`dias_aviso_vencimiento` BETWEEN 1 AND 180)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+INSERT IGNORE INTO `configuracion` (`id`, `dias_aviso_vencimiento`) VALUES (1, 30);
