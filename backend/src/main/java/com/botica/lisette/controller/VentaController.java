@@ -67,7 +67,7 @@ public class VentaController {
         if (hasta == null) hasta = hoy;
         if (desde == null) desde = hoy.withDayOfMonth(1);           // por defecto: mes actual
         if (desde.isAfter(hasta)) { LocalDate t = desde; desde = hasta; hasta = t; }
-        String metodoFiltro = METODOS.contains(metodo) ? metodo : null;
+        String metodoFiltro = (metodo != null && METODOS.contains(metodo)) ? metodo : null;
 
         // La propietaria ve todas las ventas; el vendedor solo las suyas
         boolean admin = auth.getAuthorities().stream()
