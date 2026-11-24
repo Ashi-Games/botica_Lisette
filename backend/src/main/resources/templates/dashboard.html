@@ -10,9 +10,8 @@
                 <h1>Panel de control</h1>
                 <p>Resumen del negocio</p>
             </div>
-            <button class="btn-outline" onclick="window.print()">
-                <i class="bi bi-download"></i> Exportar reporte
-            </button>
+            <a class="btn-outline" style="display:inline-block" th:href="@{/dashboard/reporte}" target="_blank">
+    <i class="bi bi-file-earmark-text"></i> Generar reporte</a>
         </header>
 
         <!-- INDICADORES -->

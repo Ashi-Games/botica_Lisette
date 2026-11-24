@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="'Reporte de gestión ' + ${numero}">Reporte de gestión</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 12px;
+            color: #263238;
+            background: #E9EFED;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        /* Barra de acciones (no se imprime) */
+        .acciones {
+            max-width: 800px;
+            margin: 18px auto 0;
+            display: flex;
+            justify-content: space-between;
+        }
+        .acciones a, .acciones button {
+            font: inherit;
+            font-size: 13px;
+            padding: 9px 16px;
+            border-radius: 6px;
+            border: 1px solid #087F75;
+            background: #fff;
+            color: #087F75;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        .acciones button { background: #087F75; color: #fff; }
+
+        /* Hoja */
+        .hoja {
+            max-width: 800px;
+            margin: 14px auto 30px;
+            background: #fff;
+            padding: 30px 34px;
+            border-radius: 6px;
+            box-shadow: 0 2px 14px rgba(0,0,0,.08);
+        }
+
+        .cabecera {
+            display: flex;
+            justify-content: space-between;
+            align-items: stretch;
+            gap: 20px;
+            padding-bottom: 18px;
+            border-bottom: 3px solid #087F75;
+        }
+        .marca { display: flex; align-items: center; gap: 12px; }
+        .logo {
+            width: 46px; height: 46px;
+            background: #087F75; color: #fff;
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 30px; font-weight: bold;
+        }
+        .marca .nombre { font-size: 22px; font-weight: bold; color: #075B55; }
+        .marca .sub { font-size: 11px; color: #718096; margin-top: 3px; }
+
+        .documento {
+            border: 2px solid #087F75;
+            border-radius: 8px;
+            padding: 10px 18px;
+            text-align: center;
+            min-width: 230px;
+        }
+        .documento .tipo { font-size: 13px; font-weight: bold; color: #075B55; letter-spacing: .5px; }
+        .documento .num { margin-top: 6px; font-size: 14px; font-weight: bold; }
+
+        .datos {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin: 16px 0 6px;
+            background: #E6F4F1;
+            border-radius: 8px;
+            padding: 12px 14px;
+        }
+        .datos span { display: block; font-size: 10px; color: #718096; margin-bottom: 3px; }
+        .datos strong { font-size: 12px; }
+
+        h2 {
+            font-size: 13px;
+            color: #075B55;
+            margin: 22px 0 10px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid #E6ECEA;
+        }
+
+        .kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+        .kpi { border: 1px solid #E6ECEA; border-radius: 8px; padding: 11px 12px; }
+        .kpi .etiqueta { font-size: 10px; color: #718096; }
+        .kpi .valor { font-size: 20px; font-weight: bold; margin: 5px 0 4px; }
+        .kpi .variacion { font-size: 10px; }
+
+        table { width: 100%; border-collapse: collapse; }
+        th {
+            background: #075B55; color: #fff;
+            text-align: left; font-size: 10px; font-weight: 600;
+            padding: 7px 8px;
+        }
+        td { padding: 7px 8px; border-bottom: 1px solid #E6ECEA; font-size: 11px; }
+        tbody tr:nth-child(even) td { background: #F7F9F8; }
+        td.num, th.num { text-align: right; }
+        tfoot td { font-weight: bold; border-top: 2px solid #087F75; border-bottom: none; background: #fff; }
+
+        .barra-fondo { background: #E6F4F1; border-radius: 4px; height: 10px; }
+        .barra-valor { background: #087F75; border-radius: 4px; height: 10px; }
+
+        .dos { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        .dos h3 { font-size: 11px; margin-bottom: 6px; color: #263238; }
+
+        .etiqueta-estado {
+            display: inline-block; border-radius: 20px; padding: 2px 8px;
+            font-size: 10px; font-weight: bold;
+        }
+        .peligro { background: #FCE5E5; color: #C74747; }
+        .aviso { background: #FFF0D9; color: #B87320; }
+        .vacio { color: #718096; font-style: italic; padding: 8px 0; }
+
+        .pie {
+            margin-top: 26px;
+            padding-top: 12px;
+            border-top: 1px dashed #B8C4C0;
+            font-size: 10px;
+            color: #718096;
+            text-align: center;
+            line-height: 1.6;
+        }
+
+        section, .kpis, .dos { break-inside: avoid; }
+
+        @page { size: A4; margin: 12mm; }
+
+        @media print {
+            body { background: #fff; }
+            .no-imprimir { display: none !important; }
+            .hoja { margin: 0; max-width: none; padding: 0; box-shadow: none; border-radius: 0; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="acciones no-imprimir">
+    <a th:href="@{/dashboard}">← Volver al panel</a>
+    <button type="button" onclick="window.print()">Imprimir / Guardar PDF</button>
+</div>
+
+<main class="hoja">
+
+    <header class="cabecera">
+        <div class="marca">
+            <div class="logo">+</div>
+            <div>
+                <div class="nombre">Botica Lisette</div>
+                <div class="sub">Sistema de gestión de inventario y ventas</div>
+            </div>
+        </div>
+        <div class="documento">
+            <div class="tipo">REPORTE DE GESTIÓN</div>
+            <div class="num" th:text="'N° ' + ${numero}">N° RG-20261124-0404</div>
+        </div>
+    </header>
+
+    <section class="datos">
+        <div>
+            <span>Fecha de emisión</span>
+            <strong th:text="${fechaEmision} + ' · ' + ${horaEmision}">24/11/2026 · 04:04</strong>
+        </div>
+        <div>
+            <span>Emitido por</span>
+            <strong th:text="${usuarioNombre}">Propietaria</strong>
+        </div>
+        <div>
+            <span>Periodo de ventas</span>
+            <strong>Últimos 6 meses</strong>
+        </div>
+        <div>
+            <span>Aviso de vencimiento</span>
+            <strong th:text="${diasAviso} + ' días'">30 días</strong>
+        </div>
+    </section>
+
+    <!-- 1. RESUMEN -->
+    <section>
+        <h2>1. Resumen del negocio</h2>
+        <div class="kpis">
+            <div class="kpi">
+                <div class="etiqueta">Ventas del día</div>
+                <div class="valor" th:text="'S/ ' + ${r.ventasDia().valor()}">S/ 0.00</div>
+                <div class="variacion" th:style="'color:' + ${r.ventasDia().color()}"
+                     th:text="${r.ventasDia().variacion()}"></div>
+            </div>
+            <div class="kpi">
+                <div class="etiqueta">Ventas del mes</div>
+                <div class="valor" th:text="'S/ ' + ${r.ventasMes().valor()}">S/ 0.00</div>
+                <div class="variacion" th:style="'color:' + ${r.ventasMes().color()}"
+                     th:text="${r.ventasMes().variacion()}"></div>
+            </div>
+            <div class="kpi">
+                <div class="etiqueta">Cantidad de ventas (mes)</div>
+                <div class="valor" th:text="${r.cantidadVentas().valor()}">0</div>
+                <div class="variacion" th:style="'color:' + ${r.cantidadVentas().color()}"
+                     th:text="${r.cantidadVentas().variacion()}"></div>
+            </div>
+            <div class="kpi">
+                <div class="etiqueta">Productos con alerta</div>
+                <div class="valor" th:text="${r.productosAlerta()}">0</div>
+                <div class="variacion" style="color:#B87320">Stock bajo o por vencer</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 2. VENTAS MENSUALES -->
+    <section>
+        <h2>2. Ventas mensuales</h2>
+        <table>
+            <thead>
+            <tr>
+                <th style="width:15%">Mes</th>
+                <th class="num" style="width:20%">Monto (S/)</th>
+                <th>Comparativo</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="mes, st : ${r.meses()}">
+                <td th:text="${mes}">Nov</td>
+                <td class="num" th:text="${#numbers.formatDecimal(r.montos().get(st.index), 1, 'COMMA', 2, 'POINT')}">0.00</td>
+                <td>
+                    <div class="barra-fondo">
+                        <div class="barra-valor" th:style="'width:' + ${barras.get(st.index)} + '%'"></div>
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+            <tfoot>
+            <tr>
+                <td>Total</td>
+                <td class="num" th:text="${#numbers.formatDecimal(totalPeriodo, 1, 'COMMA', 2, 'POINT')}">0.00</td>
+                <td></td>
+            </tr>
+            </tfoot>
+        </table>
+    </section>
+
+    <!-- 3. PRODUCTOS -->
+    <section>
+        <h2>3. Rotación de productos (últimos 30 días)</h2>
+        <div class="dos">
+            <div>
+                <h3>Más vendidos</h3>
+                <table>
+                    <thead><tr><th>#</th><th>Producto</th><th class="num">Unidades</th></tr></thead>
+                    <tbody>
+                    <tr th:each="p, st : ${r.masVendidos()}">
+                        <td th:text="${st.count}">1</td>
+                        <td th:text="${p.nombre()}">Producto</td>
+                        <td class="num" th:text="${p.cantidad()}">0</td>
+                    </tr>
+                    </tbody>
+                </table>
+                <p class="vacio" th:if="${r.masVendidos().isEmpty()}">Sin ventas en este periodo.</p>
+            </div>
+            <div>
+                <h3>Menos vendidos</h3>
+                <table>
+                    <thead><tr><th>#</th><th>Producto</th><th class="num">Unidades</th></tr></thead>
+                    <tbody>
+                    <tr th:each="p, st : ${r.menosVendidos()}">
+                        <td th:text="${st.count}">1</td>
+                        <td th:text="${p.nombre()}">Producto</td>
+                        <td class="num" th:text="${p.cantidad()}">0</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- 4. ALERTAS -->
+    <section>
+        <h2>4. Alertas de inventario</h2>
+
+        <h3 style="font-size:11px; margin-bottom:6px;"
+            th:text="'Lotes por vencer (próximos ' + ${diasAviso} + ' días): ' + ${r.porVencer().size()}">Lotes por vencer</h3>
+        <table th:if="${!r.porVencer().isEmpty()}">
+            <thead>
+            <tr><th>Producto</th><th>Lote</th><th>Vence</th><th>Plazo</th><th class="num">Stock</th></tr>
+            </thead>
+            <tbody>
+            <tr th:each="a : ${r.porVencer()}">
+                <td th:text="${a.producto()}">Producto</td>
+                <td th:text="${a.codigoLote()}">L-001</td>
+                <td th:text="${#temporals.format(a.fechaVencimiento(), 'dd/MM/yyyy')}">01/01/2026</td>
+                <td>
+                    <span class="etiqueta-estado"
+                          th:classappend="${a.dias() <= 15} ? 'peligro' : 'aviso'"
+                          th:text="${a.dias() <= 0} ? 'Vencido' : ${a.dias() + ' días'}">9 días</span>
+                </td>
+                <td class="num" th:text="${a.stock()}">0</td>
+            </tr>
+            </tbody>
+        </table>
+        <p class="vacio" th:if="${r.porVencer().isEmpty()}">No hay lotes por vencer.</p>
+
+        <h3 style="font-size:11px; margin:14px 0 6px;"
+            th:text="'Productos con stock bajo: ' + ${r.stockBajo().size()}">Stock bajo</h3>
+        <table th:if="${!r.stockBajo().isEmpty()}">
+            <thead>
+            <tr><th>Producto</th><th class="num">Stock actual</th><th class="num">Stock mínimo</th><th class="num">Faltan</th></tr>
+            </thead>
+            <tbody>
+            <tr th:each="s : ${r.stockBajo()}">
+                <td th:text="${s.producto()}">Producto</td>
+                <td class="num" th:text="${s.stockActual()}">0</td>
+                <td class="num" th:text="${s.stockMinimo()}">0</td>
+                <td class="num"><strong th:text="${s.stockMinimo() - s.stockActual()}">0</strong></td>
+            </tr>
+            </tbody>
+        </table>
+        <p class="vacio" th:if="${r.stockBajo().isEmpty()}">Todo el stock está por encima del mínimo.</p>
+    </section>
+
+    <footer class="pie">
+        Representación impresa del reporte de gestión <strong th:text="${numero}">RG-0000</strong>,
+        generada automáticamente por el sistema Botica Lisette.<br>
+        Las cifras corresponden a los datos registrados al momento de la emisión
+        (<span th:text="${fechaEmision} + ' ' + ${horaEmision}">24/11/2026 04:04</span>).
+    </footer>
+
+</main>
+
+</body>
+</html>
