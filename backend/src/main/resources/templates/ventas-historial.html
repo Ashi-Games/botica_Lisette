@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Historial de ventas')}"></head>
+<body>
+<div class="app">
+
+    <aside th:replace="~{fragments/sidebar :: sidebar('historial-ventas')}"></aside>
+
+    <main class="main-content">
+
+        <div class="page-header">
+            <div>
+                <h1 th:text="${esAdmin} ? 'Historial de ventas' : 'Mis ventas'">Historial de ventas</h1>
+                <p>Ventas registradas en el sistema</p>
+            </div>
+            <a class="btn-verde" th:href="@{/ventas}">+ Registrar venta</a>
+        </div>
+
+        <!-- FILTROS -->
+        <form class="panel filtros-historial" th:action="@{/ventas/historial}" method="get">
+            <div>
+                <label>Desde</label>
+                <input type="date" name="desde" th:value="${desde}">
+            </div>
+            <div>
+                <label>Hasta</label>
+                <input type="date" name="hasta" th:value="${hasta}">
+            </div>
+            <div>
+                <label>Método de pago</label>
+                <select name="metodo">
+                    <option value="">Todos</option>
+                    <option th:each="m : ${metodos}" th:value="${m}" th:text="${m}"
+                            th:selected="${m == metodo}"></option>
+                </select>
+            </div>
+            <button type="submit" class="btn-verde">Filtrar</button>
+            <a class="btn-borde" th:href="@{/ventas/historial}">Limpiar</a>
+        </form>
+
+        <!-- RESUMEN -->
+        <section class="stats-grid resumen-historial">
+            <div class="stat-card">
+                <div class="stat-label">Total vendido</div>
+                <div class="stat-value" th:text="'S/ ' + ${#numbers.formatDecimal(h.total(), 1, 'COMMA', 2, 'POINT')}">S/ 0.00</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Número de ventas</div>
+                <div class="stat-value" th:text="${h.cantidad()}">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Ticket promedio</div>
+                <div class="stat-value" th:text="'S/ ' + ${#numbers.formatDecimal(h.promedio(), 1, 'COMMA', 2, 'POINT')}">S/ 0.00</div>
+            </div>
+        </section>
+
+        <!-- TABLA -->
+        <div class="panel">
+            <div class="tabla-wrap">
+                <table class="tabla">
+                    <thead>
+                    <tr>
+                        <th>N.º</th><th>Fecha y hora</th><th>Vendedor</th>
+                        <th>Productos</th><th>Método</th><th>Total</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="v : ${h.ventas()}">
+                        <td class="nombre" th:text="${v.id()}"></td>
+                        <td th:text="${#temporals.format(v.fechaHora(), 'dd/MM/yyyy HH:mm')}"></td>
+                        <td th:text="${v.vendedor()}"></td>
+                        <td>
+                            <details class="detalle-venta">
+                                <summary th:text="${v.lineas().size()} + ' producto(s) · ' + ${v.unidades()} + ' und.'"></summary>
+                                <table class="mini-tabla">
+                                    <tr th:each="l : ${v.lineas()}">
+                                        <td th:text="${l.producto()}"></td>
+                                        <td th:text="'× ' + ${l.cantidad()}"></td>
+                                        <td th:text="'S/ ' + ${#numbers.formatDecimal(l.precioUnitario(), 1, 'COMMA', 2, 'POINT')}"></td>
+                                        <td class="nombre" th:text="'S/ ' + ${#numbers.formatDecimal(l.subtotal(), 1, 'COMMA', 2, 'POINT')}"></td>
+                                    </tr>
+                                </table>
+                            </details>
+                        </td>
+                        <td><span class="estado ok" th:text="${v.metodoPago()}"></span></td>
+                        <td class="nombre" th:text="'S/ ' + ${#numbers.formatDecimal(v.total(), 1, 'COMMA', 2, 'POINT')}"></td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(h.ventas())}">
+                        <td colspan="6">No hay ventas en este rango de fechas.</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- PAGINACIÓN -->
+            <div class="paginacion" th:if="${h.totalPaginas() > 1}">
+                <a class="btn-borde btn-chico" th:if="${h.pagina() > 0}"
+                   th:href="@{/ventas/historial(desde=${desde}, hasta=${hasta}, metodo=${metodo}, pagina=${h.pagina() - 1})}">← Anterior</a>
+                <span th:text="'Página ' + ${h.pagina() + 1} + ' de ' + ${h.totalPaginas()}"></span>
+                <a class="btn-borde btn-chico" th:if="${h.pagina() + 1 < h.totalPaginas()}"
+                   th:href="@{/ventas/historial(desde=${desde}, hasta=${hasta}, metodo=${metodo}, pagina=${h.pagina() + 1})}">Siguiente →</a>
+            </div>
+        </div>
+
+    </main>
+</div>
+</body>
+</html>

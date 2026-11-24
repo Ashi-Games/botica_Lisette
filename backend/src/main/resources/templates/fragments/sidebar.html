@@ -46,6 +46,12 @@
             <span class="menu-text">Registrar venta</span>
         </a>
 
+        <a th:href="@{/ventas/historial}"
+           th:classappend="${pagina == 'historial-ventas'} ? 'active' : ''">
+            <i class="bi bi-receipt"></i>
+            <span class="menu-text">Historial de ventas</span>
+        </a>
+
         <form th:action="@{/logout}" method="post">
     <button type="submit" class="logout-btn">
         <i class="bi bi-box-arrow-left"></i>

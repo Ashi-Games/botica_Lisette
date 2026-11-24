@@ -774,3 +774,39 @@ tbody tr:hover {
 @media (max-width: 820px) {
     .grid-producto { grid-template-columns: 1fr; }
 }
+
+/* HISTORIAL DE VENTAS */
+.filtros-historial {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr auto auto;
+    gap: 10px;
+    align-items: end;
+    margin-bottom: 18px;
+}
+.filtros-historial .btn-borde { text-decoration: none; }
+
+.resumen-historial { grid-template-columns: repeat(3, 1fr); margin-bottom: 18px; }
+
+.detalle-venta summary {
+    cursor: pointer;
+    color: var(--verde-principal);
+    font-weight: 600;
+    font-size: 13px;
+}
+.mini-tabla { margin-top: 8px; border-collapse: collapse; font-size: 12px; }
+.mini-tabla td { padding: 4px 10px 4px 0; border: none; }
+
+.paginacion {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 14px;
+    margin-top: 14px;
+    font-size: 13px;
+    color: var(--texto-secundario);
+}
+
+@media (max-width: 820px) {
+    .filtros-historial,
+    .resumen-historial { grid-template-columns: 1fr; }
+}
