@@ -17,21 +17,19 @@ public interface LoteRepository extends JpaRepository<Lote, Long> {
     @Query("select min(l.fechaVencimiento) from Lote l where l.producto.id = :productoId and l.cantidad > 0")
     LocalDate proximoVencimiento(@Param("productoId") Long productoId);
 
-    /** Lotes con stock, el que vence primero va primero (FEFO). Se usará al vender. */
+    /** Lotes con stock, el que vence primero va primero (FEFO). Se usa al vender y al editar. */
     List<Lote> findByProductoIdAndCantidadGreaterThanOrderByFechaVencimientoAsc(Long productoId, int cantidad);
 
-    /** Lotes con stock que vencen antes de cierta fecha. Se usará en las alertas. */
+    /** Lotes con stock que vencen antes de cierta fecha. Se usa en las alertas. */
     List<Lote> findByCantidadGreaterThanAndFechaVencimientoLessThanEqualOrderByFechaVencimientoAsc(int cantidad, LocalDate limite);
 
-    @Query("select l.producto.id, sum(l.cantidad), min(l.fechaVencimiento) from Lote l where l.cantidad > 0 group by l.producto.id")
-    List<Object[]> resumenPorProducto();
-        /** [productoId, unidades] de lotes con stock que NO están vencidos (stock realmente vendible). */
-    @Query("select l.producto.id, sum(l.cantidad) from Lote l " +
-           "where l.cantidad > 0 and l.fechaVencimiento >= :hoy group by l.producto.id")
-    List<Object[]> stockVendible(@Param("hoy") LocalDate hoy);
-
-        /** [productoId, stock, vencimiento más próximo, cantidad de lotes] de los lotes con stock. */
+    /** [productoId, stock, vencimiento más próximo, cantidad de lotes] de los lotes con stock. */
     @Query("select l.producto.id, sum(l.cantidad), min(l.fechaVencimiento), count(l) " +
            "from Lote l where l.cantidad > 0 group by l.producto.id")
     List<Object[]> resumenPorProducto();
+
+    /** [productoId, unidades] de lotes con stock que NO están vencidos (stock realmente vendible). */
+    @Query("select l.producto.id, sum(l.cantidad) from Lote l " +
+           "where l.cantidad > 0 and l.fechaVencimiento >= :hoy group by l.producto.id")
+    List<Object[]> stockVendible(@Param("hoy") LocalDate hoy);
 }
