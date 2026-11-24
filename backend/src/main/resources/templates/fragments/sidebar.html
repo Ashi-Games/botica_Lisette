@@ -28,14 +28,14 @@
             <span class="menu-text">Inventario</span>
         </a>
 
-        <a th:href="@{/ingresos/nuevo}"
-           th:classappend="${pagina == 'ingreso-form'} ? 'active' : ''">
+        <a th:if="${esAdmin}" th:href="@{/ingresos/nuevo}"
+   th:classappend="${pagina == 'ingreso-form'} ? 'active' : ''">
             <i class="bi bi-truck"></i>
             <span class="menu-text">Registrar ingreso</span>
         </a>
 
-        <a th:href="@{/alertas}"
-           th:classappend="${pagina == 'alertas'} ? 'active' : ''">
+        <a th:if="${esAdmin}" th:href="@{/alertas}"
+   th:classappend="${pagina == 'alertas'} ? 'active' : ''">
             <i class="bi bi-exclamation-triangle"></i>
             <span class="menu-text">Alertas</span>
         </a>
